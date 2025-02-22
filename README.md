@@ -1,7 +1,7 @@
 # MediFul-Medical-Inventory-Management
 MediFul is a convenient Inventory Management Software that can be used by Hospitals and Pharmacies to keep track of their medicines' stock.
 
-#📦 Database Setup Guide
+# 📦 Database Setup Guide
 This project requires a MySQL database. Follow the instructions below to set it up.
 
 🛠 Step 1: Create a New Database
