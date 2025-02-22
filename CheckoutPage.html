@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+    <script defer src="script.js"></script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            font-family: 'Poppins', sans-serif;
+            background-color: #e3f2fd;
+            color: #333;
+            margin: 0;
+            padding-top: 60px;
+            overflow-x: hidden;
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            width: 300px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+            margin-bottom: 15px;
+        }
+        .search-bar input {
+            border: none;
+            outline: none;
+            flex: 1;
+            font-size: 16px;
+            padding: 5px;
+        }
+        .search-bar button {
+            border: none;
+            background: none;
+            cursor: pointer;
+        }
+        .add-item-container {
+            margin-bottom: 15px;
+        }
+        .items-container {
+            display: flex;
+            flex-direction: column;
+            width: 350px;
+            gap: 10px;
+        }
+        .table {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .table-header, .table-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+        }
+        .table-header {
+            font-weight: bold;
+            border-bottom: 2px solid #ccc;
+        }
+        .move-to-billing {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #0288d1;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .move-to-billing:hover {
+            background: #0277bd;
+        }
+    </style>
+</head>
+<body>
+    <div id="header-container"></div>
+    <h1>Checkout</h1>
+    <div class="search-bar">
+        <input type="text" placeholder="Search items">
+        <button>
+            🔍
+        </button>
+    </div>
+    <div class="add-item-container">
+        <input type="text" id="itemName" placeholder="Enter item name">
+        <button onclick="addItem()">Add Item</button>
+    </div>
+    <div class="items-container" id="itemsContainer">
+        <div class="table">
+            <div class="table-header">
+                <span style="flex: 2;">Item</span>
+                <span style="flex: 1; text-align: center;">Quantity</span>
+            </div>
+            <div id="itemList"></div>
+        </div>
+    </div>
+    <button class="move-to-billing">Move to Billing</button>
+    <script>
+        function addItem() {
+            let itemName = document.getElementById('itemName').value;
+            if (itemName.trim() === '') return;
+            
+            let itemRow = document.createElement('div');
+            itemRow.classList.add('table-row');
+            itemRow.innerHTML = `
+                <span style="flex: 2;">${itemName}</span>
+                <div class="quantity" style="flex: 1; text-align: center;">
+                    <button onclick="decreaseQuantity(this)">-</button>
+                    <span>1</span>
+                    <button onclick="increaseQuantity(this)">+</button>
+                </div>
+            `;
+            document.getElementById('itemList').appendChild(itemRow);
+            document.getElementById('itemName').value = '';
+        }
+        function increaseQuantity(button) {
+            let quantitySpan = button.previousElementSibling;
+            quantitySpan.textContent = parseInt(quantitySpan.textContent) + 1;
+        }
+        function decreaseQuantity(button) {
+            let quantitySpan = button.nextElementSibling;
+            if (parseInt(quantitySpan.textContent) > 1) {
+                quantitySpan.textContent = parseInt(quantitySpan.textContent) - 1;
+            }
+        }
+    </script>
+</body>
+</html>

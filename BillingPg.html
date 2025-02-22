@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billing</title>
+    <script defer src="script.js"></script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            font-family: 'Poppins', sans-serif;
+            background-color: #e3f2fd;
+            color: #333;
+            margin: 0;
+            padding-top: 60px;
+            overflow-x: hidden;
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .billing-container {
+            width: 400px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .table-header, .table-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #ccc;
+        }
+        .table-header {
+            font-weight: bold;
+        }
+        .total {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            font-size: 18px;
+            margin-top: 15px;
+        }
+        .pay-now {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .pay-now button {
+            padding: 10px 20px;
+            background: #0288d1;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .pay-now button:hover {
+            background: #0277bd;
+        }
+    </style>
+</head>
+<body>
+    <div id="header-container"></div>
+    <h1>Billing</h1>
+    <div class="billing-container">
+        <div class="table-header">
+            <span>Item</span>
+            <span>Quantity</span>
+            <span>Price</span>
+        </div>
+        <div id="billingList"></div>
+        <div class="total">
+            <span>Total:</span>
+            <span id="totalPrice">$0</span>
+        </div>
+        <div class="pay-now">
+            <button onclick="payNow()">Pay Now</button>
+        </div>
+    </div>
+    <script>
+        fetch('header.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('header-container').innerHTML = data;
+            })
+            .catch(error => console.error('Error loading header:', error));
+
+        function payNow() {
+            alert('Payment successful!');
+        }
+    </script>
+</body>
+</html>
