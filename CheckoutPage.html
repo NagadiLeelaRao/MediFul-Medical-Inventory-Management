@@ -124,13 +124,33 @@
             transform: scale(1.05);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
         }
+        .dropdown {
+            display: none;
+            position: absolute;
+            top: 45px;
+            width: 280px;
+            background: white;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            overflow-y: auto;
+            max-height: 160px;
+            z-index: 100;
+        }
+        .dropdown div {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #ddd;
+        }
+        .dropdown div:hover {
+            background: #f0f0f0;
+        }
     </style>
 </head>
 <body>
     <div id="header-container"></div>
     <h1>Checkout</h1>
     <div class="search-bar">
-        <input type="text" placeholder="Search items" oninput="showDropdown()">
+        <input type="text" id="searchInventory" placeholder="Search items" oninput="showDropdown()">
         <button>🔍</button>
         <button onclick="addItem()">Add Item</button>
         <div id="dropdownList" class="dropdown"></div>
@@ -146,7 +166,7 @@
             <div id="itemList"></div>
         </div>
     </div>
-    <button class="move-to-billing" onclick="MoveToBilling()">Move to Billing</button>
+    <button class="move-to-billing" onclick="moveToBilling()">Move to Billing</button>
     <script>
         window.medicineList = [];
 
