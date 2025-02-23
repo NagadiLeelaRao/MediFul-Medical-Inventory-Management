@@ -117,6 +117,7 @@
     </style>
 </head>
 <body>
+    <div id="header-container"></div>
     <h1>View Inventory</h1>
     <div class="inventory-summary">
         <div class="summary-card">Items: 10</div>
@@ -147,6 +148,71 @@
             </tbody>
         </table>
     </div>
+
+    <script>
+        let stockData = [];
+
+        function loadStock() {
+            fetch('fetch_stock.php')
+                .then(response => response.json())
+                .then(data => {
+                    stockData = data;
+                    populateTable(stockData);
+                    updateSummaryCards(data);
+                })
+                .catch(error => console.error('Error loading stock:', error));
+        }
+
+        function populateTable(data) {
+            let tableBody = document.querySelector("#stockTable tbody");
+            tableBody.innerHTML = "";
+            data.forEach(item => {
+                let row = document.createElement("tr");
+                row.innerHTML= `
+                    <td>${item.id || 'N/A'}</td>
+                    <td>${item.name || item.Name || 'N/A'}</td>
+                    <td>${item.manufacturer || item.Manufacturer || 'N/A'}</td>
+                    <td>${item.pack_size || item.Pack_Size || 'N/A'}</td>
+                    <td>${item.price || item.Price || 'N/A'}</td>
+                    <td>${item.qty || item.Qty || 'N/A'}</td>
+                    <td>${item.batchno || 'N/A'}</td>
+                    <td>${item.mfd_date || 'N/A'}</td>
+                    <td>${item.exp_date || 'N/A'}</td>
+                    <td>${(parseFloat(item.price || item.Price || 0) * parseFloat(item.qty || item.Qty || 0)).toFixed(2)}</td>  
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function filterTable() {
+            let input = document.getElementById('searchInventory').value.toLowerCase();
+            let filteredData = stockData.filter(item => (item.name || item.Name || '').toLowerCase().includes(input));
+            populateTable(filteredData);
+        }
+
+        function updateSummaryCards(data) {
+            const totalItems = data.length;
+            const totalUnits = data.reduce((sum, item) => sum + parseFloat(item.qty || item.Qty || 0), 0);
+            const totalValue = data.reduce((sum, item) => 
+                sum + (parseFloat(item.price || item.Price || 0) * parseFloat(item.qty || item.Qty || 0)), 0
+            );
+
+            document.querySelector('.summary-card:nth-child(1)').textContent = `Items: ${totalItems}`;
+            document.querySelector('.summary-card:nth-child(2)').textContent = `Units: ${totalUnits}`;
+            document.querySelector('.summary-card:nth-child(3)').textContent = `Value: ${totalValue.toFixed(2)}`;
+        }
+
+        function addItem() {
+            // Implement your add item functionality here
+            window.location.href = 'add_item.php';  // or show a modal
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            loadStock();
+            document.getElementById('searchInventory').addEventListener('input', filterTable);
+        });
+    </script>
+
     <div class="button-container">
         <button class="add-item-btn" onclick="addItem()">➕ Add Item</button>
     </div>

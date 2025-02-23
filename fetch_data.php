@@ -27,29 +27,4 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 } else {
     echo json_encode(["error" => "Invalid request method"]);
 }
-/*
-// Set response header to JSON
-header('Content-Type: application/json');
-
-$sql = "SELECT * FROM items";
-
-$result = $conn->query($sql);
-
-//Check if query was successful
-if ($result === false) {
-    echo json_encode(["error" => "Query failed: " . $conn->error]);
-    exit;
-}
-
-// Fetch data
-$data = array();
-while ($row = $result->fetch_assoc()) {
-    $data[] = $row;
-}
-
-// Output JSON response
-echo json_encode($data, JSON_PRETTY_PRINT);
-
-// Close connection
-$conn->close();*/
 ?>

@@ -127,13 +127,11 @@
     </style>
 </head>
 <body>
+    <div id="header-container"></div>
     <h1>Checkout</h1>
     <div class="search-bar">
-        <input type="text" placeholder="Search items">
+        <input type="text" placeholder="Search items" oninput="showDropdown()">
         <button>🔍</button>
-    </div>
-    <div class="add-item-container">
-        <input type="text" id="itemName" placeholder="Enter item name">
         <button onclick="addItem()">Add Item</button>
         <div id="dropdownList" class="dropdown"></div>
     </div>
@@ -332,33 +330,6 @@
             // Redirect to billing page
             window.location.href = "BillingPg.html";
         }
-
-            /*let itemName = document.getElementById('itemName').value;
-            if (itemName.trim() === '') return;
-            
-            let itemRow = document.createElement('div');
-            itemRow.classList.add('table-row');
-            itemRow.innerHTML = `
-                <span style="flex: 2;">${itemName}</span>
-                <div class="quantity" style="flex: 1; text-align: center;">
-                    <button onclick="decreaseQuantity(this)">-</button>
-                    <span>1</span>
-                    <button onclick="increaseQuantity(this)">+</button>
-                </div>
-            `;
-            document.getElementById('itemList').appendChild(itemRow);
-            document.getElementById('itemName').value = '';
-        }
-        function increaseQuantity(button) {
-            let quantitySpan = button.previousElementSibling;
-            quantitySpan.textContent = parseInt(quantitySpan.textContent) + 1;
-        }
-        function decreaseQuantity(button) {
-            let quantitySpan = button.nextElementSibling;
-            if (parseInt(quantitySpan.textContent) > 1) {
-                quantitySpan.textContent = parseInt(quantitySpan.textContent) - 1;
-            }
-        }*/
     </script>
 </body>
 </html>
