@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Billing</title>
-    <script defer src="script.js"></script>
+    <!--<script defer src="script.js"></script>-->
     <style>
         body {
             display: flex;
@@ -70,6 +70,122 @@
     <div id="header-container"></div>
     <h1>Billing</h1>
     <div class="billing-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody id="billingList">
+                <!-- Items will be inserted here dynamically -->
+            </tbody>
+        </table>
+        <div class="total">
+            <span>Total:</span>
+            <span id="totalPrice">₹0.00</span>
+        </div>
+        <div class="buttons">
+            <button onclick="payNow()">Pay Now</button>
+        </div>
+    </div>
+
+    <script>
+        console.log(localStorage.getItem("billingItems"));
+        document.addEventListener("DOMContentLoaded", function() {
+            console.log("Billing page loaded");
+            let items_ = JSON.parse(localStorage.getItem("billingItems")) || [];
+            console.log("Retrieved items from localStorage:", items_);
+            let storedItems = localStorage.getItem("billingItems");
+            if (!storedItems) {
+                console.log("No billing items found in localStorage.");
+                return;
+            }
+
+            let items = JSON.parse(storedItems);
+            console.log("Retrieved items:", items);
+
+            let tbody = document.getElementById("billingList");
+            let totalPriceElement = document.getElementById("totalPrice");
+
+            if (items.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='4'>No items available</td></tr>";
+                totalPriceElement.textContent = "₹0.00";
+                return;
+            }
+
+            let totalAmount = 0;
+
+            items.forEach(item => {
+                let row = document.createElement("tr");
+                let itemTotal = item.quantity * item.price;
+                totalAmount += itemTotal;
+
+                row.innerHTML = `
+                    <td>${item.name}</td>
+                    <td>${item.quantity}</td>
+                    <td>₹${item.price.toFixed(2)}</td>
+                    <td>₹${itemTotal.toFixed(2)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            totalPriceElement.textContent = `₹${totalAmount.toFixed(2)}`;
+        });
+
+
+        function clearCart() {
+            localStorage.removeItem("billingItems");
+            location.reload();
+        }
+
+        function payNow() {
+            let items = JSON.parse(localStorage.getItem("billingItems")) || [];
+    
+            if (items.length === 0) {
+                alert("No items to process.");
+                return;
+            }
+            
+            console.log("Processing items:", items);
+            
+            const requestData = {
+                items: items.map(item => ({
+                    name: item.name,  // Using name instead of id
+                    qty: parseInt(item.qty)
+                }))
+            };
+            
+            fetch("update_stock.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => response.text())
+            .then(text => {
+                console.log("Server response:", text);
+                return JSON.parse(text);
+            })
+            .then(data => {
+                if (data.success) {
+                    alert("Payment successful! Stock updated.");
+                    clearCart();
+                } else {
+                    alert("Error updating stock: " + data.message);
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred while processing the payment: " + error.message);
+            });
+        }
+    </script>
+    <!--<div class="billing-container">
         <div class="table-header">
             <span>Item</span>
             <span>Quantity</span>
@@ -95,6 +211,6 @@
         function payNow() {
             alert('Payment successful!');
         }
-    </script>
+    </script>-->
 </body>
 </html>

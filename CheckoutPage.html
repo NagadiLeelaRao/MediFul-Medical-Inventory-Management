@@ -30,7 +30,7 @@
             background: white;
             border-radius: 8px;
             padding: 10px;
-            width: 300px;
+            width: 400px;
             box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
             margin-bottom: 15px;
         }
@@ -86,34 +86,236 @@
         .move-to-billing:hover {
             background: #0277bd;
         }
+        .dropdown {
+            display: none;
+            position: absolute;
+            top: 45px;
+            width: 280px;
+            background: white;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            overflow-y: auto;
+            max-height: 160px;
+            z-index: 100;
+        }
+        .dropdown div {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #ddd;
+        }
+        .dropdown div:hover {
+            background: #f0f0f0;
+        }
     </style>
 </head>
 <body>
     <div id="header-container"></div>
     <h1>Checkout</h1>
     <div class="search-bar">
-        <input type="text" placeholder="Search items">
+        <input type="text" id="searchInventory" placeholder="Search items" oninput="showDropdown()">
         <button>
             🔍
         </button>
-    </div>
-    <div class="add-item-container">
-        <input type="text" id="itemName" placeholder="Enter item name">
         <button onclick="addItem()">Add Item</button>
+        <div id="dropdownList" class="dropdown"></div>
     </div>
+    
     <div class="items-container" id="itemsContainer">
         <div class="table">
             <div class="table-header">
                 <span style="flex: 2;">Item</span>
                 <span style="flex: 1; text-align: center;">Quantity</span>
+                <span style="flex: 1; text-align: center;">Total amt.</span>
             </div>
             <div id="itemList"></div>
         </div>
     </div>
-    <button class="move-to-billing">Move to Billing</button>
+    <button class="move-to-billing" onclick="moveToBilling()">Move to Billing</button>
     <script>
+        window.medicineList = [];
+
+        // Fetch medicine names and data from the server
+        function fetchMedicineNames() {
+            fetch('item_list.php')
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Medicine Data:", data);
+                    window.medicineList = data; // Store medicine details globally
+                })
+                .catch(error => {
+                    console.error('Error fetching medicine names:', error);
+                    window.medicineList = [];
+                });
+        }
+
+        // Call fetch function
+        fetchMedicineNames();
+
+        // Show dropdown suggestions based on input
+        function showDropdown() {
+            let input = document.getElementById('searchInventory').value.toLowerCase();
+            let dropdown = document.getElementById('dropdownList');
+
+            if (!dropdown) {
+                console.error("Dropdown element not found!");
+                return;
+            }
+            dropdown.innerHTML = '';
+
+            if (input === '') {
+                dropdown.style.display = 'none';
+                return;
+            }
+
+            if (!window.medicineList || !Array.isArray(window.medicineList)) {
+                console.error("Error: medicineList is not defined or not an array.");
+                return;
+            }
+
+            let filteredItems = window.medicineList.filter(name=> typeof name==='string' &&
+                name.toLowerCase().includes(input)
+            );
+
+            filteredItems.forEach(name => {
+                let div = document.createElement('div');
+                div.textContent = name;
+                div.onclick = function () {
+                    document.getElementById('searchInventory').value = name;
+                    dropdown.style.display = 'none';
+                    //displayMedicineDetails(name);
+                };
+                dropdown.appendChild(div);
+            });
+
+            dropdown.style.display = filteredItems.length ? 'block' : 'none';
+        }
+
+        window.medicineStock = {}; // Store stock data globally
+
+        // Fetch medicine stock details from the server
+        function fetchMedicineStock() {
+            fetch('checkout.php')  // Ensure this file returns stock data as JSON
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Stock Data:", data);
+                    window.medicineStock = data;  // Store stock details globally
+                })
+                .catch(error => {
+                    console.error('Error fetching stock data:', error);
+                    window.medicineStock = {};
+                });
+        }
+
+        fetchMedicineStock();
+
         function addItem() {
-            let itemName = document.getElementById('itemName').value;
+            let medicineName = document.getElementById('searchInventory').value.trim();
+
+            if (!medicineName) {
+                alert("Please enter a medicine name.");
+                return;
+            }
+
+            // Send a POST request to fetch stock data for the specific medicine
+            fetch('checkout.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: medicineName })
+            })
+            .then(response => response.json())
+            .then(responseData => {
+                if (!responseData.success) {
+                    alert("Medicine is not available in stock.");
+                    return;
+                }
+
+                let { id, name, price, qty } = responseData.data;
+
+                if (qty <= 0) {
+                    alert("Medicine is out of stock.");
+                    return;
+                }
+
+                let existingRow = document.querySelector(`.table-row[data-id="${id}"]`);
+                if (existingRow) {
+                    alert("This item is already added.");
+                    return;
+                }
+
+                let itemRow = document.createElement('div');
+                itemRow.classList.add('table-row');
+                itemRow.setAttribute("data-id", id);
+                itemRow.setAttribute("data-price", price);
+                itemRow.setAttribute("data-max-qty", qty);
+
+                itemRow.innerHTML = `
+                    <span style="flex: 2;">${medicineName}</span>
+                    <div class="quantity" style="flex: 1; text-align: center;">
+                        <button onclick="updateQuantity(this, -1)">-</button>
+                        <span>1</span>
+                        <button onclick="updateQuantity(this, 1)">+</button>
+                    </div>
+                    <span style="flex: 1; text-align: center;" class="total-price">₹${price}</span>
+                `;
+
+                document.getElementById('itemList').appendChild(itemRow);
+                })
+                .catch(error => {
+                console.error('Error fetching stock data:', error);
+                alert("Error checking stock.");
+            });
+        }
+        // Function to update quantity (+/-) and calculate total price
+        function updateQuantity(button, change) {
+            let quantitySpan = button.parentElement.querySelector("span");
+            let quantity = parseInt(quantitySpan.textContent);
+            let itemRow = button.closest(".table-row");
+            let maxQty = parseInt(itemRow.getAttribute("data-max-qty"));
+            let price = parseFloat(itemRow.getAttribute("data-price"));
+
+            quantity += change;
+
+            if (quantity < 0) {
+                quantity = 0;
+            } else if (quantity > maxQty) {
+                alert(`Maximum stock available: ${maxQty}`);
+                quantity = maxQty;
+            }
+
+            quantitySpan.textContent = quantity;
+
+            let totalPrice = quantity * price;
+            itemRow.querySelector(".total-price").textContent = `₹${totalPrice.toFixed(2)}`;
+        }
+
+        function moveToBilling() {
+            let items = [];
+
+            document.querySelectorAll('.table-row').forEach(row => {
+                let id = row.getAttribute("data-id");
+                let name = row.children[0].textContent.trim();
+                let quantity = parseInt(row.querySelector(".quantity span").textContent);
+                let price = parseFloat(row.getAttribute("data-price"));
+                let total = quantity * price;
+
+                items.push({ id, name, quantity, price, total });
+            });
+
+            if (items.length === 0) {
+                alert("No items to bill.");
+                return;
+            }
+
+            // Store the selected items in localStorage
+            localStorage.setItem("billingItems", JSON.stringify(items));
+            console.log("Saving to localStorage:", JSON.stringify(items));
+            console.log(localStorage.getItem("billingItems"));
+
+            // Redirect to billing page
+            window.location.href = "BillingPg.html";
+        }
+
+            /*let itemName = document.getElementById('itemName').value;
             if (itemName.trim() === '') return;
             
             let itemRow = document.createElement('div');
@@ -138,7 +340,7 @@
             if (parseInt(quantitySpan.textContent) > 1) {
                 quantitySpan.textContent = parseInt(quantitySpan.textContent) - 1;
             }
-        }
+        }*/
     </script>
 </body>
 </html>
