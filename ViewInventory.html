@@ -4,23 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Inventory</title>
-    
+    <script defer src="script.js"></script>
     <style>
         body {
             display: flex;
             flex-direction: column;
             align-items: center;
             font-family: 'Poppins', sans-serif;
-            background-color: #e3f2fd;
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
             color: #333;
             margin: 0;
-            padding: 20px;
+            padding-top: 60px;
             overflow-x: hidden;
         }
         h1 {
             margin-bottom: 20px;
-            font-size: 28px;
+            font-size: 32px;
             font-weight: bold;
+            color: #000;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
         }
         .inventory-summary {
             display: flex;
@@ -30,13 +32,13 @@
         .summary-card {
             background: white;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             text-align: center;
-            width: 100px;
+            width: 120px;
             font-size: 18px;
             font-weight: bold;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease-in-out;
         }
         .summary-card:hover {
             transform: scale(1.1);
@@ -48,10 +50,12 @@
             border-radius: 8px;
             padding: 10px;
             width: 300px;
-            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
-            position: relative;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             margin-bottom: 20px;
-            z-index: 10; /*added by Leela*/
+            transition: transform 0.3s ease-in-out;
+        }
+        .search-bar:hover {
+            transform: scale(1.05);
         }
         .search-bar input {
             border: none;
@@ -65,85 +69,54 @@
             max-width: 1200px;
             height: 60vh;
             overflow: auto;
-            border-radius: 8px;
-            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             background: white;
             padding: 10px;
         }
-
         table {
             width: 100%;
             border-collapse: collapse;
             min-width: 600px;
         }
-
         th, td {
             border-bottom: 1px solid #ddd;
             padding: 12px;
             text-align: left;
             white-space: nowrap;
         }
-
         th {
             background-color: #f4f4f4;
             position: sticky;
             top: 0;
             z-index: 2;
         }
-
-        /*.dropdown {
-        display: none;
-        position: absolute;
-        top: 45px;
-        width: 280px; Match input width
-        /*background: white;
-        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
-        border-radius: 8px;
-        overflow-y: auto;
-        max-height: 160px; ✅ Show 5 items before scrolling 
-        z-index: 100;
-        }
-
-        .dropdown div {
-            padding: 10px;
-            cursor: pointer;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .dropdown div:hover {
-            background: #f0f0f0;
-        }*/
-
         .button-container {
             display: flex;
-            justify-content: flex-start; /* Align to the left */
+            justify-content: center;
             width: fit-content;
-            margin-top: 10px;
+            margin-top: 20px;
         }
-
         .add-item-btn {
             background-color: #0288d1;
             color: white;
             border: none;
-            padding: 10px 15px;
-            font-size: 16px;
+            padding: 12px 20px;
+            font-size: 18px;
             font-weight: bold;
             border-radius: 8px;
             cursor: pointer;
-            left: 0;
-            position: relative;
-            transition: background 0.3s ease;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
-
         .add-item-btn:hover {
-            background-color: #046aa0;
+            background: #0277bd;
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
         }
-
     </style>
-    
 </head>
 <body>
-    <div id="header-container"></div>
     <h1>View Inventory</h1>
     <div class="inventory-summary">
         <div class="summary-card">Items: 10</div>
@@ -151,66 +124,9 @@
         <div class="summary-card">Value: 30</div>
     </div>
     <div class="search-bar">
-        <input type="text" id="searchInventory" placeholder="Search Inventory"> <!--oninput="showDropdown()"-->
+        <input type="text" id="searchInventory" placeholder="Search Inventory">
         <button>🔍</button>
-        <!--<div id="dropdownList" class="dropdown"></div>-->
     </div>
-    <!--<script>
-        fetch('header.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('header-container').innerHTML = data;
-            })
-            .catch(error => console.error('Error loading header:', error));
-        
-            fetchMedicineNames();
-
-        window.medicineList = [];
-
-    // Fetch medicine names from the server
-    function fetchMedicineNames() {
-        fetch('item_list.php')
-            .then(response => response.json())
-            .then(data => {
-                console.log("Medicine Names:", data); // Debugging
-                window.medicineList = data; // Store medicine names globally for search
-            })
-            .catch(error => console.error('Error fetching medicine names:', error));
-    }
-
-    // Show dropdown suggestions when user types
-    function showDropdown() {
-        let input = document.getElementById('searchInventory').value.toLowerCase();
-        let dropdown = document.getElementById('dropdownList');
-
-        if (!dropdown) {
-        console.error("Dropdown element not found!");
-        return;
-        }
-        dropdown.innerHTML = '';
-
-        if (input === '') {
-            dropdown.style.display = 'none';
-            return;
-        }
-
-        let filteredItems = window.medicineList.filter(name => 
-            name.toLowerCase().includes(input)
-        );
-
-        filteredItems.forEach(name => {
-            let div = document.createElement('div');
-            div.textContent = name;
-            div.onclick = function () {
-                document.getElementById('searchInventory').value = name;
-                dropdown.style.display = 'none';
-            };
-            dropdown.appendChild(div);
-        });
-        dropdown.style.display = filteredItems.length ? 'block' : 'none';
-    }
-    </script>-->
-
     <div class="table-container">
         <table id="stockTable">
             <thead>
@@ -231,106 +147,12 @@
             </tbody>
         </table>
     </div>
-
-    <!--<script src="script.js"></script>-->
-
-    <script>
-        let stockData = [];
-
-        function loadStock() {
-            fetch('fetch_stock.php')
-                .then(response => response.json())
-                .then(data => {
-                    stockData = data;
-                    populateTable(stockData);
-                    updateSummaryCards(data);
-                })
-                .catch(error => console.error('Error loading stock:', error));
-        }
-
-        function populateTable(data) {
-            let tableBody = document.querySelector("#stockTable tbody");
-            tableBody.innerHTML = "";
-            data.forEach(item => {
-                let row = document.createElement("tr");
-                row.innerHTML= `
-                    <td>${item.id || 'N/A'}</td>
-                    <td>${item.name || item.Name || 'N/A'}</td>
-                    <td>${item.manufacturer || item.Manufacturer || 'N/A'}</td>
-                    <td>${item.pack_size || item.Pack_Size || 'N/A'}</td>
-                    <td>${item.price || item.Price || 'N/A'}</td>
-                    <td>${item.qty || item.Qty || 'N/A'}</td>
-                    <td>${item.batchno || 'N/A'}</td>
-                    <td>${item.mfd_date || 'N/A'}</td>
-                    <td>${item.exp_date || 'N/A'}</td>
-                    <td>${(parseFloat(item.price || item.Price || 0) * parseFloat(item.qty || item.Qty || 0)).toFixed(2)}</td>  
-                `;
-                tableBody.appendChild(row);
-            });
-        }
-
-        function filterTable() {
-            let input = document.getElementById('searchInventory').value.toLowerCase();
-            let filteredData = stockData.filter(item => (item.name || item.Name || '').toLowerCase().includes(input));
-            populateTable(filteredData);
-        }
-
-        function updateSummaryCards(data) {
-            const totalItems = data.length;
-            const totalUnits = data.reduce((sum, item) => sum + parseFloat(item.qty || item.Qty || 0), 0);
-            const totalValue = data.reduce((sum, item) => 
-                sum + (parseFloat(item.price || item.Price || 0) * parseFloat(item.qty || item.Qty || 0)), 0
-            );
-
-            document.querySelector('.summary-card:nth-child(1)').textContent = `Items: ${totalItems}`;
-            document.querySelector('.summary-card:nth-child(2)').textContent = `Units: ${totalUnits}`;
-            document.querySelector('.summary-card:nth-child(3)').textContent = `Value: ${totalValue.toFixed(2)}`;
-        }
-
-        function addItem() {
-            // Implement your add item functionality here
-            window.location.href = 'add_item.php';  // or show a modal
-        }
-
-        document.addEventListener("DOMContentLoaded", function () {
-            loadStock();
-            document.getElementById('searchInventory').addEventListener('input', filterTable);
-        });
-    </script>
-    <!--<div class="table-container">
-        <table id="dataTable" onload="loadInventory()">
-            <thead>
-                <tr>
-                    <th>Id</th>
-                    <th>Name</th>
-                    <th>Price (Rs.)</th>
-                    <th>Discontinued</th>
-                    <th>Manufacturer</th>
-                    <th>Type</th>
-                    <th>Pack Size</th>
-                    <th>Short Composition 1</th>
-                    <th>Short Composition 2</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
-    </div>
-
-    <script src="script.js"></script>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            loadInventory(); // ✅ Now loadInventory() is available
-        });
-    </script>-->
-
     <div class="button-container">
         <button class="add-item-btn" onclick="addItem()">➕ Add Item</button>
     </div>
     <script>
         function addItem() {
-            window.location.href = "AddItemsPage.html"; // Redirect to item addition page
+            window.location.href = "AddItemsPage.html";
         }
     </script>
 </body>

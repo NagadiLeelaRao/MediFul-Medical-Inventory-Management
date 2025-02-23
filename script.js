@@ -23,6 +23,9 @@ function viewInventory(){
     window.location.href = "ViewInventory.html";
 }
 
+function MoveToBilling(){
+    window.location.href = "BillingPg.html";
+}
 function addItem(){
     window.location.href = "InventoryAddItems.html"; // Redirect to item addition page
 }
