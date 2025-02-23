@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,13 +13,16 @@
             height: 100vh;
             flex-direction: column;
             font-family: 'Poppins', sans-serif;
-            background-color: #e3f2fd;
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
             color: #333;
+            margin: 0;
         }
         h1 {
             margin-bottom: 20px;
-            font-size: 28px;
+            font-size: 32px;
             font-weight: bold;
+            color: #333;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
         }
         .button-container {
             display: flex;
@@ -35,21 +37,23 @@
             color: white;
             border-radius: 8px;
             font-weight: bold;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
         button:hover {
             background-color: #0277bd;
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
         }
     </style>
 </head>
 <body>
-    <div id="header-container"></div> <!-- Placeholder for Header -->
-
+    <div id="header-container"></div> 
     <h1>Welcome!</h1>
     <div class="button-container">
         <button onclick="checkout()">Checkout</button>
         <button onclick="manageInventory()">Manage Inventory</button>
     </div>
-
     <script>
         function checkout() {
             alert("Checkout clicked!");

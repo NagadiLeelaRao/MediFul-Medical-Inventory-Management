@@ -13,7 +13,7 @@
             height: 100vh;
             flex-direction: column;
             font-family: 'Poppins', sans-serif;
-            background-color: #e3f2fd;
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
             color: #333;
             margin: 0;
             padding-top: 60px;
@@ -21,8 +21,10 @@
         }
         h1 {
             margin-bottom: 20px;
-            font-size: 28px;
+            font-size: 32px;
             font-weight: bold;
+            color: #000;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
         }
         .search-bar {
             display: flex;
@@ -30,9 +32,13 @@
             background: white;
             border-radius: 8px;
             padding: 10px;
-            width: 400px;
-            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+            width: 300px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             margin-bottom: 15px;
+            transition: transform 0.3s ease-in-out;
+        }
+        .search-bar:hover {
+            transform: scale(1.05);
         }
         .search-bar input {
             border: none;
@@ -45,9 +51,32 @@
             border: none;
             background: none;
             cursor: pointer;
+            font-size: 18px;
         }
         .add-item-container {
             margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+        }
+        .add-item-container input {
+            padding: 8px;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            outline: none;
+        }
+        .add-item-container button {
+            padding: 8px 15px;
+            font-size: 16px;
+            border: none;
+            background: #0288d1;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .add-item-container button:hover {
+            background: #0277bd;
         }
         .items-container {
             display: flex;
@@ -61,8 +90,12 @@
             width: 100%;
             background: white;
             padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease-in-out;
+        }
+        .table:hover {
+            transform: scale(1.02);
         }
         .table-header, .table-row {
             display: flex;
@@ -75,47 +108,32 @@
         }
         .move-to-billing {
             margin-top: 20px;
-            padding: 10px 20px;
+            padding: 12px 25px;
             background: #0288d1;
             color: white;
             border: none;
             border-radius: 8px;
-            font-size: 16px;
+            font-size: 18px;
+            font-weight: bold;
             cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
         .move-to-billing:hover {
             background: #0277bd;
-        }
-        .dropdown {
-            display: none;
-            position: absolute;
-            top: 45px;
-            width: 280px;
-            background: white;
-            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-            overflow-y: auto;
-            max-height: 160px;
-            z-index: 100;
-        }
-        .dropdown div {
-            padding: 10px;
-            cursor: pointer;
-            border-bottom: 1px solid #ddd;
-        }
-        .dropdown div:hover {
-            background: #f0f0f0;
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
         }
     </style>
 </head>
 <body>
-    <div id="header-container"></div>
     <h1>Checkout</h1>
     <div class="search-bar">
-        <input type="text" id="searchInventory" placeholder="Search items" oninput="showDropdown()">
-        <button>
-            🔍
-        </button>
+        <input type="text" placeholder="Search items">
+        <button>🔍</button>
+    </div>
+    <div class="add-item-container">
+        <input type="text" id="itemName" placeholder="Enter item name">
         <button onclick="addItem()">Add Item</button>
         <div id="dropdownList" class="dropdown"></div>
     </div>
@@ -130,7 +148,7 @@
             <div id="itemList"></div>
         </div>
     </div>
-    <button class="move-to-billing" onclick="moveToBilling()">Move to Billing</button>
+    <button class="move-to-billing" onclick="MoveToBilling()">Move to Billing</button>
     <script>
         window.medicineList = [];
 
