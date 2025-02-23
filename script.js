@@ -23,8 +23,8 @@ function viewInventory(){
     window.location.href = "ViewInventory.html";
 }
 
-function addItem() {
-    window.location.href = " "; // Redirect to item addition page
+function addItem(){
+    window.location.href = "InventoryAddItems.html"; // Redirect to item addition page
 }
 
 function loadStock() {
