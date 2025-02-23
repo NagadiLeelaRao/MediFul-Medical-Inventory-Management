@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Inventory</title>
+    <script defer src="script.js"></script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            font-family: 'Poppins', sans-serif;
+            background-color: #e3f2fd;
+            color: #333;
+            margin: 0;
+            padding-top: 60px;
+            overflow-x: hidden;
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            width: 300px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .search-bar input {
+            border: none;
+            outline: none;
+            flex: 1;
+            font-size: 16px;
+            padding: 5px;
+        }
+        .dropdown {
+            display: none;
+            position: absolute;
+            top: 45px;
+            width: 280px;
+            background: white;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            overflow-y: auto;
+            max-height: 160px;
+            z-index: 100;
+        }
+        .dropdown div {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #ddd;
+        }
+        .dropdown div:hover {
+            background: #f0f0f0;
+        }
+        /* Styling for the table */
+        .table-container {
+            display: none;
+            margin-top: 20px;
+            width: 80%;
+            max-width: 600px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+    </style>
+</head>
+<body>
+    <div id="header-container"></div>
+    <h1>Manage Inventory</h1>
+    <div class="search-bar">
+        <input type="text" id="searchInventory" placeholder="Search Inventory" oninput="showDropdown()">
+        <button>🔍</button>
+        <div id="dropdownList" class="dropdown"></div>
+    </div>
+
+    <!-- Table Container (Initially Hidden) -->
+    <div class="table-container" id="medicineTableContainer">
+        <h2>Medicine Details</h2>
+        <table id="medicineTable">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Price (Rs.)</th>
+                    <th>Discontinued</th>
+                    <th>Manufacturer</th>
+                    <th>Type</th>
+                    <th>Pack Size</th>
+                    <th>Short Composition 1</th>
+                    <th>Short Composition 2</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <div class="table-container" id="addMedicineFormContainer">
+        <h2>Add Medicine to Inventory</h2>
+        <form id="addMedicineForm">
+            <label for="quantity">Quantity (Units):</label>
+            <input type="number" id="quantity" name="quantity" required><br>
+    
+            <label for="batchNo">Batch No:</label>
+            <input type="text" id="batchNo" name="batchNo" required><br>
+    
+            <label for="mfdDate">Manufacturing Date:</label>
+            <input type="date" id="mfdDate" name="mfdDate" required><br>
+    
+            <label for="expDate">Expiry Date:</label>
+            <input type="date" id="expDate" name="expDate" required><br>
+    
+            <button type="button" onclick="addToInventory()">Add to Inventory</button>
+        </form>
+    </div>
+
+    <script>
+        window.medicineList = [];
+
+        // Fetch medicine names and data from the server
+        function fetchMedicineNames() {
+            fetch('item_list.php')
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Medicine Data:", data);
+                    window.medicineList = data; // Store medicine details globally
+                })
+                .catch(error => {
+                    console.error('Error fetching medicine names:', error);
+                    window.medicineList = [];
+                });
+        }
+
+        // Call fetch function
+        fetchMedicineNames();
+
+        // Show dropdown suggestions based on input
+        function showDropdown() {
+            let input = document.getElementById('searchInventory').value.toLowerCase();
+            let dropdown = document.getElementById('dropdownList');
+
+            if (!dropdown) {
+                console.error("Dropdown element not found!");
+                return;
+            }
+            dropdown.innerHTML = '';
+
+            if (input === '') {
+                dropdown.style.display = 'none';
+                return;
+            }
+
+            if (!window.medicineList || !Array.isArray(window.medicineList)) {
+                console.error("Error: medicineList is not defined or not an array.");
+                return;
+            }
+
+            let filteredItems = window.medicineList.filter(name=> typeof name==='string' &&
+                name.toLowerCase().includes(input)
+            );
+
+            filteredItems.forEach(name => {
+                let div = document.createElement('div');
+                div.textContent = name;
+                div.onclick = function () {
+                    document.getElementById('searchInventory').value = name;
+                    dropdown.style.display = 'none';
+                    displayMedicineDetails(name);
+                };
+                dropdown.appendChild(div);
+            });
+
+            dropdown.style.display = filteredItems.length ? 'block' : 'none';
+        }
+
+        let selectedMedicine=null;
+        // Display medicine details in table
+        function displayMedicineDetails(medicineName) {
+            let tableContainer = document.getElementById("medicineTableContainer");
+            let tableBody = document.getElementById("medicineTable").querySelector("tbody");
+            document.getElementById("addMedicineFormContainer").style.display = "block";
+
+            // Show the table
+            tableContainer.style.display = "block";
+
+            // Clear previous data
+            tableBody.innerHTML = "";
+
+             // Prepare the request body
+            let formData = new FormData();
+            formData.append("name", medicineName);
+
+            // Fetch medicine details from the server
+            fetch("fetch_data.php", {
+                method: "POST",
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        let row = data[0];
+                        selectedMedicine= row; // Assuming the API returns an array of objects
+
+                        let tableRow = `
+                            <tr>
+                                <td>${row.Id || "N/A"}</td>
+                                <td>${row.Name || "N/A"}</td>
+                                <td>${row.Price || "N/A"}</td>
+                                <td>${row.Is_Discontinued ? "No" : "Yes"}</td>
+                                <td>${row.Manufacturer || "N/A"}</td>
+                                <td>${row.Type || "N/A"}</td>
+                                <td>${row.Pack_Size || "N/A"}</td>
+                                <td>${row.Short_Composition1 || "N/A"}</td>
+                                <td>${row.Short_Composition2 || "N/A"}</td>
+                            </tr>
+                        `;
+
+                        tableBody.innerHTML = tableRow;
+                    } else {
+                        tableBody.innerHTML = "<tr><td colspan='9'>No details found</td></tr>";
+                        selectedMedicine=null;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching medicine details:', error);
+                    tableBody.innerHTML = "<tr><td colspan='9'>Error fetching details</td></tr>";
+                    selectedMedicine=null;
+                });
+        }
+
+        // Function to Add Medicine to Inventory
+        function addToInventory() {
+            if (!selectedMedicine) {
+                alert("Please select a medicine first!");
+                return;
+            }
+
+            let quantity = document.getElementById("quantity").value;
+            let batchNo = document.getElementById("batchNo").value;
+            let mfdDate = document.getElementById("mfdDate").value;
+            let expDate = document.getElementById("expDate").value;
+
+            if (!quantity || !batchNo || !mfdDate || !expDate) {
+                alert("Please fill all fields!");
+                return;
+            }
+            
+            // Validate dates
+            if (new Date(expDate) <= new Date(mfdDate)) {
+                alert("Expiry date must be after manufacturing date!");
+                return;
+            }
+
+            // Validate quantity
+            if (quantity <= 0) {
+                alert("Quantity must be greater than 0!");
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append("id", selectedMedicine.Id);
+            formData.append("Name", selectedMedicine.Name);
+            formData.append("qty", quantity);
+            formData.append("batchno", batchNo);
+            formData.append("mfd_date", mfdDate);
+            formData.append("exp_date", expDate);
+
+            fetch("add_to_inventory.php", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.text().then(text => {
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        console.error('Error parsing JSON:', text);
+                        throw new Error('Invalid JSON response');
+                    }
+                });
+            })
+            .then(data => {
+                console.log('Received data:', data); // Debug log
+                if (data && data.success) {
+                    alert("Medicine added to inventory successfully!");
+                    document.getElementById("addMedicineForm").reset();
+                    // Optionally hide the form container
+                    document.getElementById("addMedicineFormContainer").style.display = "none";
+                    // Clear the search input
+                    document.getElementById("searchInventory").value = "";
+                    // Hide the table
+                    document.getElementById("medicineTableContainer").style.display = "none";
+                } else {
+                    alert("Error: " + (data.message || "Unknown error occurred"));
+                }
+            })
+            .catch(error => {
+                console.error('Error details:', error);
+                alert("Error processing request: " + error.message);
+            });
+    }
+    </script>
+</body>
+</html>
